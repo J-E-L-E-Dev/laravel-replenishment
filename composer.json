@@ -1,0 +1,41 @@
+{
+    "name": "asisnet/laravel-replenishment",
+    "description": "Contratos, persistencia e infraestructura para reposición de inventario en Laravel.",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "brick/math": "^0.12 || ^0.14",
+        "php": "^8.1",
+        "illuminate/console": "^10.0 || ^11.0 || ^12.0",
+        "illuminate/contracts": "^10.0 || ^11.0 || ^12.0",
+        "illuminate/database": "^10.0 || ^11.0 || ^12.0",
+        "illuminate/support": "^10.0 || ^11.0 || ^12.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0 || ^9.0 || ^10.0",
+        "phpunit/phpunit": "^10.5 || ^11.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Asisnet\\Replenishment\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Asisnet\\Replenishment\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Asisnet\\Replenishment\\ReplenishmentServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
