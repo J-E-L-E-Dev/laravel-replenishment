@@ -24,6 +24,7 @@ final class AdapterRegistry
 {
     /** @var array<string, class-string> Contratos admitidos para cada origen. */
     public const CONTRACTS = [
+        'inventory_parameters' => \Asisnet\Replenishment\Contracts\InventoryParameterSource::class,
         'product_costs' => \Asisnet\Replenishment\Contracts\ProductCostSource::class,
         'products' => ProductSource::class,
         'inventory' => InventorySource::class,

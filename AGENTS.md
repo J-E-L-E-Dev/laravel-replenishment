@@ -228,3 +228,8 @@
 
 - Para días y unidades de una publicación nueva, preparar cada fila con las reglas del modelo, insertar por lotes en la conexión propia y verificar fechas, claves reales y cantidades antes del callback y del commit. Las publicaciones confirmadas son inmutables.
 - Al recuperar un intento, respetar la reserva UTC y conservar la etapa interrumpida. Comprobar token y versión antes de fijar la publicación o confirmar el resultado.
+
+## Revisión de parámetros de inventario (7.4.2-B)
+
+- Revisar los niveles desde el resultado congelado de la línea. Conservar su unidad, calidad, seguridad y horizontes. Usar la tasa exacta o meses completos compatibles y registrar como desconocida una proyección sin respaldo.
+- Guardar versiones inmutables con fotografía del maestro y decisiones por campo en la conexión propia. La aprobación interna es independiente de la decisión de compra. La integración de esta fase sólo lee el maestro.

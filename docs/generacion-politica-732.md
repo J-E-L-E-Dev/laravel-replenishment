@@ -98,3 +98,5 @@ El detalle visible muestra cantidad considerada, procedencia, hipótesis, balanc
 Verificación focalizada: cuatro pruebas PHP, 52 aserciones, y tres pruebas frontend satisfactorias, incluyendo renderizado del detalle dentro de la pantalla real con transporte controlado. No se ejecutaron suites completas, migraciones reales ni lecturas ERP. El renderizado virtual no equivale a revisión manual en navegador.
 
 La generación registra la etapa interrumpida, conserva publicaciones fijadas y distingue conflictos de reserva, versión y configuración. El informe técnico incluye el protocolo reproducible y las medidas de lectura y escritura. [Publicación estadística y recuperación](publicacion-estadistica.md)
+
+La acción **Revisar parámetros** abre una revisión independiente para cada producto calculado, incluida una generación con propuesta guardada. [Reglas de parámetros, evidencia y decisiones](parametros-inventario.md)

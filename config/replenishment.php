@@ -56,6 +56,7 @@ return [
 
     // Cada adaptador es una clase del consumidor; null significa integración pendiente.
     'adapters' => [
+        'inventory_parameters' => null,
         'product_costs' => null,
         'products' => null,
         'inventory' => null,
