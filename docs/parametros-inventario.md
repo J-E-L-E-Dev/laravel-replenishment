@@ -1,4 +1,4 @@
-# Revisión de parámetros de inventario (7.4.2-B)
+# Revisión y aplicación individual de parámetros de inventario
 
 Desde una generación con líneas calculadas, **Revisar parámetros** abre la comparación del proveedor. Incluye líneas con necesidad de compra cero y generaciones con propuesta guardada. La revisión utiliza la unidad de inventario y el resultado efectivo que quedó registrado en cada línea. La disponibilidad que se muestra proviene de ese análisis. Abrir la página no reconstruye estadísticas ni ejecuta el planificador.
 
@@ -39,4 +39,32 @@ La instalación utiliza el mecanismo de migración ya elegido para la conexión 
 
 La lectura ERP ocurre antes de la transacción propia. El servidor reconstruye la comparación pendiente y contrasta su huella con la presentada. Si ya existe una revisión, la muestra desde su fotografía; antes de aprobar diferencias se revalidan los seis valores, la unidad y la precisión vigentes. Dentro de una transacción propia, se bloquean las líneas en orden de identidad, se comprueba la versión de revisión y la huella del resultado de generación y se añaden nuevas versiones. Un conflicto devuelve HTTP 409 y revierte el lote. El ERP y la base propia carecen de una instantánea transaccional compartida.
 
-Para una aplicación futura quedarán disponibles la clave exacta del producto, la fotografía esperada y los campos aprobados con diferencia efectiva. La fase C deberá releer y comparar en el momento de aplicar, controlar permisos específicos, actuar por producto con transacciones cortas, operaciones parametrizadas y reintentos limitados, y registrar su resultado. El supervisor posterior podrá consultar estos niveles y la disponibilidad normalizada. Esta fase termina en la decisión interna.
+## Aplicación individual al maestro (7.4.2-C.1)
+
+La migración propia 000011 crea `replenishment_parameter_applications`. Cada intento referencia una revisión inmutable y guarda el usuario, las fechas, los seis valores esperados y los nuevos valores de los campos que cambian. La aprobación y la aplicación tienen estados independientes.
+
+**Aplicar al ERP** exige confirmar un único producto. El servidor recupera la aprobación vigente y registra primero el intento como `pending`. El adaptador compara la clave, la unidad y los seis valores dentro del mismo UPDATE parametrizado. NULL y cero son distintos. Sólo asigna las diferencias aprobadas y comprueba el resultado dentro de la transacción ERP. Tras confirmar el commit externo, el paquete registra `applied`. Una petición duplicada devuelve el resultado guardado.
+
+Un producto ausente o una fotografía distinta producen `conflict` (HTTP 409). El operador debe revisar el maestro y aprobar una nueva fotografía. Un fallo anterior al envío o una reversión confirmada producen `error/not_committed` y permiten un nuevo intento individual confirmado.
+
+Si se pierde la confirmación externa, el intento queda en `error/uncertain`. Si falla el registro local del desenlace, puede quedar en `pending`. Ambos bloquean el reenvío de la línea. Para conciliar, identifique intento, revisión, producto, usuario y hora, compruebe que terminó la operación original y contraste la fotografía y los cambios con la auditoría del ERP. Una coincidencia de valores actuales por sí sola no identifica quién realizó la escritura. Conserve la evidencia de conciliación. La pantalla carece de desbloqueo automático.
+
+## Aplicación de varios productos (7.4.2-C.2)
+
+La selección múltiple llama a la aplicación individual en bloques de hasta diez revisiones por solicitud. Cada producto conserva su reserva, comparación y transacción. Un conflicto, una reversión o un resultado incierto se informan por producto y permiten continuar con los demás.
+
+La confirmación identifica la línea, la revisión y el último intento observado (cero en la primera aplicación). El servicio comprueba ese intento bajo el bloqueo de la línea. Repetir una solicitud devuelve el desenlace existente, incluso si el intento anterior terminó con una reversión. Para reintentar tras una reversión acreditada, el operador debe seleccionar y confirmar de nuevo el producto con el identificador actualizado. Una reserva pendiente o incierta sigue requiriendo conciliación.
+
+### Consulta de auditoría de aplicaciones
+
+En una consola administrativa del consumidor, sustituya el identificador por el de la revisión consultada. Esta consulta paginada usa la conexión propia del paquete.
+
+```php
+$review = \Asisnet\Replenishment\Models\ParameterReview::findOrFail($reviewId);
+$review->applications()->paginate(25, [
+    'id', 'attempt', 'actor_id', 'created_at', 'updated_at',
+    'expected', 'changes', 'status', 'diagnosis',
+]);
+```
+
+El orden corresponde a la secuencia de intentos. Una solicitud duplicada remite al intento existente. Un reintento explícito tras una reversión confirmada añade un intento. `pending` y `error/uncertain` bloquean nuevos envíos de la línea y requieren conciliación con la evidencia del maestro.

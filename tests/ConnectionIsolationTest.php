@@ -80,7 +80,7 @@ final class ConnectionIsolationTest extends TestCase
         $this->artisan('replenishment:migrate')->assertSuccessful();
 
         self::assertTrue(DB::connection('package')->getSchemaBuilder()->hasTable('replenishment_purchase_units'));
-        self::assertSame(10, DB::connection('package')->table('replenishment_migrations')->count());
+        self::assertSame(11, DB::connection('package')->table('replenishment_migrations')->count());
         self::assertSame('2026_11_07_000001_create_replenishment_tables',
             DB::connection('package')->table('replenishment_migrations')->value('migration'));
         self::assertFalse(DB::connection('application')->getSchemaBuilder()->hasTable('replenishment_purchase_units'));
@@ -225,7 +225,7 @@ final class ConnectionIsolationTest extends TestCase
         $this->artisan('replenishment:migrate')->assertSuccessful();
         PurchaseUnit::create(['code' => 'DEFAULT', 'name' => 'Conexión predeterminada']);
         self::assertSame('application', (new PurchaseUnit)->getConnectionName());
-        self::assertSame(10, DB::connection('application')->table('replenishment_migrations')->count());
+        self::assertSame(11, DB::connection('application')->table('replenishment_migrations')->count());
         self::assertSame(1, DB::connection('application')->table('replenishment_purchase_units')->count());
         self::assertFalse(DB::connection('package')->getSchemaBuilder()->hasTable('replenishment_purchase_units'));
         $this->artisan('replenishment:migrate', ['--rollback' => true])->assertSuccessful();

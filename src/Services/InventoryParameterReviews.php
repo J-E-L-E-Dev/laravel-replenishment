@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Asisnet\Replenishment\Services;
 
 use Asisnet\Replenishment\DTO\InventoryParameterData;
-use Asisnet\Replenishment\Models\{GenerationAttempt,ParameterReview,ProposalGeneration,ProposalGenerationItem};
+use Asisnet\Replenishment\Models\{GenerationAttempt,ParameterApplication,ParameterReview,ProposalGeneration,ProposalGenerationItem};
 use Brick\Math\BigDecimal;
 use Illuminate\Pagination\LengthAwarePaginator;
 use InvalidArgumentException;
@@ -57,6 +57,14 @@ final class InventoryParameterReviews
         if (!$items) { return []; }
         $ids=array_map(static fn($item)=>$item->id,$items);
         $latest=ParameterReview::whereIn('id',ParameterReview::selectRaw('MAX(id)')->whereIn('item_id',$ids)->groupBy('item_id'))->get()->keyBy('item_id');
+        $applications=$latest->isEmpty()?collect():ParameterApplication::whereIn('id',
+            ParameterApplication::selectRaw('MAX(id)')->whereIn('review_id',$latest->pluck('id'))->groupBy('review_id')
+        )->get(['id','review_id','status','diagnosis','actor_id','updated_at'])->keyBy('review_id');
+        $blocked=$latest->isEmpty()?collect():ParameterReview::whereIn('item_id',$ids)->whereIn('id',
+            ParameterApplication::select('review_id')->where(function ($query) {
+                $query->where('status','pending')->orWhere('diagnosis','uncertain');
+            })
+        )->pluck('item_id')->flip();
         $codes=$pendingIds=$changed=[];
         foreach ($items as $item) {
             $prior=$latest[$item->id] ?? null;
@@ -103,6 +111,7 @@ final class InventoryParameterReviews
             elseif (count($known)===6) { $categories[]='equal'; }
             $rows[$item->id]=['id'=>$item->id,'revision'=>$version,'status'=>$review?->status ?? 'pending',
                 'token'=>hash('sha256',json_encode([$snapshot,$version],JSON_THROW_ON_ERROR)),'snapshot'=>$snapshot,
+                'application_blocked'=>$blocked->has($item->id),'review_id'=>$review?->id,'application'=>$review ? ($applications[$review->id] ?? null) : null,
                 'new_analysis'=>$changed[$item->id],'updated'=>$fresh,'categories'=>$categories,'decisions'=>$review?->decisions,'reason'=>$review?->reason,'actor'=>$review?->actor_id,
                 'reviewed_at'=>$review?->created_at?->toIso8601String()];
         }

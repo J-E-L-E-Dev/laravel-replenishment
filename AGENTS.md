@@ -233,3 +233,13 @@
 
 - Revisar los niveles desde el resultado congelado de la línea. Conservar su unidad, calidad, seguridad y horizontes. Usar la tasa exacta o meses completos compatibles y registrar como desconocida una proyección sin respaldo.
 - Guardar versiones inmutables con fotografía del maestro y decisiones por campo en la conexión propia. La aprobación interna es independiente de la decisión de compra. La integración de esta fase sólo lee el maestro.
+
+## Aplicación individual de parámetros (7.4.2-C.1)
+
+- Sólo el adaptador autorizado del consumidor puede aplicar las diferencias de una revisión aprobada, por un único producto y con confirmación y permiso específicos. Comparar atómicamente toda la fotografía y conservar NULL.
+- Registrar el intento en la conexión propia antes del envío y el resultado tras la confirmación externa. Una reserva pendiente o un resultado incierto requieren conciliación. Probar exclusivamente con destinos simulados o temporales.
+
+## Aplicación múltiple de parámetros (7.4.2-C.2)
+
+- Una confirmación explícita puede abarcar varias revisiones aprobadas. Enviar hasta diez por solicitud y aplicar cada producto mediante el servicio de C.1, con transacción y auditoría individuales.
+- Fijar el último intento observado al confirmar. Una respuesta perdida o una recarga nunca autorizan reenvíos automáticos. Conservar las reglas de conciliación y reintento de C.1.
