@@ -177,7 +177,7 @@ final class SupplierLeadTimeTest extends TestCase
         try{$store->persist($this->analyze([$this->row()]),$relation->id);self::fail('Debe fallar.');}catch(\RuntimeException $error){self::assertSame(2,SupplierMetric::count());}
         self::assertSame([],$erp->getQueryLog());self::assertSame('intacto',$erp->table('marker')->value('value'));
         self::assertFalse($erp->getSchemaBuilder()->hasTable('replenishment_supplier_metrics'));
-        self::assertSame(10,$this->app['db']->connection('own')->table('replenishment_migrations')->count());
+        self::assertSame(11,$this->app['db']->connection('own')->table('replenishment_migrations')->count());
     }
     /**
      * Una primera recepción certificada puede elegirse expresamente; no equivale a la entrega completa.
@@ -230,7 +230,7 @@ final class SupplierLeadTimeTest extends TestCase
         $old=SupplierMetric::create(['product_supplier_id'=>$relation->id,'analysis_start'=>$this->date('2026-01-01'),'analysis_end'=>$this->date('2026-02-01'),'calculated_at'=>$this->date('2026-02-01'),'algorithm_version'=>'legacy']);
         $this->app->make(PackageMigrator::class)->run();self::assertNull($old->fresh()->location_id);self::assertNull($old->fresh()->lead_time_evidence);
         $this->app->make(PackageMigrator::class)->run(true);self::assertFalse($own->getSchemaBuilder()->hasColumn('replenishment_supplier_metrics','location_id'));self::assertSame(1,SupplierMetric::count());
-        self::assertTrue($own->getSchemaBuilder()->hasTable('replenishment_daily_sales'));self::assertSame(9,$own->table('replenishment_migrations')->count());
+        self::assertTrue($own->getSchemaBuilder()->hasTable('replenishment_daily_sales'));self::assertSame(10,$own->table('replenishment_migrations')->count());
     }
 }
 

@@ -345,7 +345,7 @@ final class ObservedDemandTest extends TestCase
             '2026_11_09_000003_add_supplier_lead_time_evidence', '2026_11_10_000004_create_supplier_imports',
             '2026_11_10_000005_add_proposal_workflow', '2026_11_10_000006_add_policy_generation',
             '2026_11_18_000007_create_commercial_statistics', '2026_11_19_000008_add_policy_demand_settings', '2026_11_19_000009_add_generation_work',
-            '2026_11_23_000010_create_parameter_reviews',
+            '2026_11_23_000010_create_parameter_reviews','2026_11_24_000011_create_parameter_applications',
         ];
         self::assertSame($expected, $own->table('replenishment_migrations')->orderBy('id')->pluck('migration')->all());
         $schema = $own->getSchemaBuilder();
